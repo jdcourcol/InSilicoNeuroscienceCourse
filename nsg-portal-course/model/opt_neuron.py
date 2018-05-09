@@ -95,14 +95,6 @@ def main():
     # TODO store definition dicts in json
     # TODO add functionality to read settings of every object from config format
 
-    if args.hocanalyse:
-        logger.debug('Doing hocanalyse')
-        try:
-            import bglibpy  # NOQA
-        except ImportError:
-            raise ImportError(
-                'bglibpy not installed, '
-                '--hocanalyse for internal testing only!')
 
     if args.start or args.continu:
         logger.debug('Doing start or continue')
@@ -111,88 +103,6 @@ def main():
                 continue_cp=args.continu,
                 cp_filename=args.checkpoint)
 
-    if args.analyse:
-        logger.debug('Doing analyse')
-        import l5pc_analysis
-        import matplotlib.pyplot as plt
-
-        box = {'left': 0.0,
-               'bottom': 0.0,
-               'width': 1.0,
-               'height': 1.0}
-
-        release_responses_fig = plt.figure(figsize=(10, 10), facecolor='white')
-        release_objectives_fig = plt.figure(figsize=(10, 10), facecolor='white')
-
-        l5pc_analysis.analyse_releasecircuit_model(
-            opt=opt, figs=(
-                (release_responses_fig, box),
-                (release_objectives_fig, box), ), box=box)
-        release_objectives_fig.savefig('figures/l5pc_release_objectives.eps')
-        release_responses_fig.savefig('figures/l5pc_release_responses.eps')
-
-        if args.checkpoint is not None and os.path.isfile(args.checkpoint):
-            responses_fig = plt.figure(figsize=(10, 10), facecolor='white')
-            objectives_fig = plt.figure(figsize=(10, 10), facecolor='white')
-            evol_fig = plt.figure(figsize=(10, 10), facecolor='white')
-
-            l5pc_analysis.analyse_cp(opt=opt,
-                                     cp_filename=args.checkpoint,
-                                     responses_filename=args.responses,
-                                     figs=((responses_fig, box),
-                                           (objectives_fig, box),
-                                           (evol_fig, box),))
-
-            responses_fig.savefig('figures/l5pc_responses.eps')
-            objectives_fig.savefig('figures/l5pc_objectives.eps')
-            evol_fig.savefig('figures/l5pc_evolution.eps')
-
-        else:
-            print('No checkpoint file available run optimization '
-                  'first with --start')
-
-        plt.show()
-
-    elif args.hocanalyse:
-        logger.debug('Continuing hocanalyse')
-
-        import l5pc_analysis
-
-        # _, axes_obj = plt.subplots(n_of_rows, n_of_cols, facecolor='white')
-        # axes = numpy.ravel(axes_obj)
-        import matplotlib.pyplot as plt
-        fig_release = plt.figure(figsize=(10, 10), facecolor='white')
-
-        box = {
-            'left': 0.0,
-            'bottom': 0.0,
-            'width': 1.0,
-            'height': 1.0}
-
-        l5pc_analysis.analyse_releasecircuit_hocmodel(
-            opt=opt,
-            fig=fig_release,
-            box=box)
-
-        fig_release.savefig('figures/release_l5pc_hoc.eps')
-
-        plt.show()
-
-    elif args.diversity:
-        logger.debug('Plotting Diversity')
-
-        import matplotlib.pyplot as plt
-        import l5pc_analysis
-
-        if not os.path.exists(args.diversity):
-            raise Exception('Need a pickle file to plot the diversity')
-
-        fig_diversity = plt.figure(figsize=(10, 10), facecolor='white')
-
-        l5pc_analysis.plot_diversity(opt, args.diversity, fig_diversity,
-                                     opt.evaluator.param_names)
-        fig_diversity.savefig('figures/l5pc_diversity.eps')
-        plt.show()
 
 if __name__ == '__main__':
     main()
